@@ -1,6 +1,12 @@
 import express from "express";
-import { userRegistration } from "../../controllers/userController.js";
+import {
+  userRegistration,
+  userAuthentication,
+  userLogIn,
+} from "../../controllers/userController.js";
 import { check, validationResult } from "express-validator";
+import { tokenVerification } from "../../middleware/auth.js";
+import User from "../../models/User.js";
 
 const router = express.Router();
 
@@ -8,12 +14,8 @@ const router = express.Router();
 // @desc Register User
 // @access Public
 
-// router.post("/", (req, res) => {
-//   console.log(req.body);
-//   res.send("User route");
-// });
 router.post(
-  "/",
+  "/registration",
   [
     check("name", "Name is requireD").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
@@ -24,5 +26,24 @@ router.post(
   ],
   userRegistration
 );
+
+// @route POST api/users/auth
+// @desc aUTHENTICATE USER AND GET TOKEN
+// @access Public
+
+router.post(
+  "/auth",
+  [
+    check("email", "Please include a valid email").isEmail(),
+    check("password", "Password is required").exists(),
+  ],
+  userLogIn
+);
+
+// @route GET api/users/auth
+// @desc Register Token Authentication
+// @access Public
+
+router.get("/auth", tokenVerification, userAuthentication);
 
 export default router;
